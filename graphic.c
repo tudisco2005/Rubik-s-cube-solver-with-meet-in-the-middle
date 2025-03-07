@@ -1,6 +1,7 @@
 #include "graphic.h"
 #include "cube.h"
 #include <stdio.h>
+#include <math.h>
 
 // Helper function to convert cube color enum to Raylib Color
 Color GetFaceColor(int colorIndex) {
@@ -18,8 +19,8 @@ Color GetFaceColor(int colorIndex) {
 void drawCube(Cube* cube) {
     const int screenWidth = 800;
     const int screenHeight = 600;
-    const float cubeSize = 1.0f;     // LARGER CUBE SIZE
-    const float gap = 0.1f;          // LARGER GAP
+    const float cubeSize = 1.0f;
+    const float gap = 0.1f;
     const float fullSize = SIZE * (cubeSize + gap);
     const float startPos = -fullSize/2 + cubeSize/2;
     
@@ -28,13 +29,24 @@ void drawCube(Cube* cube) {
     
     // Define camera to look at our 3D model
     Camera camera = { 0 };
-    camera.position = (Vector3){ 6.0f, 6.0f, 6.0f };  // MOVE CAMERA FURTHER BACK
-    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };    // Camera looking at point
-    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };        // Camera up vector
-    camera.fovy = 45.0f;                              // Camera field-of-view Y
-    camera.projection = CAMERA_PERSPECTIVE;           // Camera projection type
+    camera.position = (Vector3){ 6.0f, 6.0f, 6.0f };
+    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };
+    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
+    camera.fovy = 45.0f;
+    camera.projection = CAMERA_PERSPECTIVE;
     
-    SetTargetFPS(60);                                 // Set target frames-per-second
+    // Variabili per il controllo della camera con il mouse
+    Vector2 previousMousePosition = { 0.0f, 0.0f };
+    bool isMouseDragging = false;
+    float cameraDistance = sqrtf(powf(camera.position.x, 2) + 
+                               powf(camera.position.y, 2) + 
+                               powf(camera.position.z, 2));
+    float cameraAngleY = 0.8f;  // Angolo iniziale orizzontale in radianti
+    float cameraAngleX = 0.6f;  // Angolo iniziale verticale in radianti
+    float mouseSensitivity = 0.003f;
+    float zoomSensitivity = 0.5f;
+    
+    SetTargetFPS(60);
     
     // Print debug info
     printf("Cube state verification:\n");
@@ -50,7 +62,51 @@ void drawCube(Cube* cube) {
     
     // Main game loop
     while (!WindowShouldClose()) {
-        // Process input - add manual camera controls for debugging
+        // Gestione zoom con rotella del mouse
+        float wheelMove = GetMouseWheelMove();
+        if (wheelMove != 0) {
+            cameraDistance -= wheelMove * zoomSensitivity;
+            if (cameraDistance < 3.0f) cameraDistance = 3.0f;  // Limite minimo per lo zoom
+            if (cameraDistance > 20.0f) cameraDistance = 20.0f;  // Limite massimo per lo zoom
+        }
+        
+        // Gestione rotazione con trascinamento del mouse
+        Vector2 currentMousePosition = GetMousePosition();
+        
+        // Inizia il trascinamento quando si preme il tasto sinistro del mouse
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            previousMousePosition = currentMousePosition;
+            isMouseDragging = true;
+        }
+        
+        // Termina il trascinamento quando si rilascia il tasto del mouse
+        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
+            isMouseDragging = false;
+        }
+        
+        // Calcola la rotazione durante il trascinamento
+        if (isMouseDragging) {
+            Vector2 mouseDelta = { 
+                currentMousePosition.x - previousMousePosition.x,
+                currentMousePosition.y - previousMousePosition.y 
+            };
+            
+            cameraAngleY -= mouseDelta.x * mouseSensitivity;
+            cameraAngleX -= mouseDelta.y * mouseSensitivity;
+            
+            // Limita l'angolo verticale per evitare rotazioni strane
+            if (cameraAngleX < -1.5f) cameraAngleX = -1.5f;
+            if (cameraAngleX > 1.5f) cameraAngleX = 1.5f;
+            
+            previousMousePosition = currentMousePosition;
+        }
+        
+        // Aggiorna la posizione della camera basata sugli angoli
+        camera.position.x = cosf(cameraAngleY) * cosf(cameraAngleX) * cameraDistance;
+        camera.position.y = sinf(cameraAngleX) * cameraDistance;
+        camera.position.z = sinf(cameraAngleY) * cosf(cameraAngleX) * cameraDistance;
+        
+        // Mantieni anche i controlli di tastiera esistenti per maggiore flessibilità
         if (IsKeyDown(KEY_RIGHT)) camera.position.x += 0.1f;
         if (IsKeyDown(KEY_LEFT)) camera.position.x -= 0.1f;
         if (IsKeyDown(KEY_UP)) camera.position.z -= 0.1f;
@@ -58,20 +114,20 @@ void drawCube(Cube* cube) {
         if (IsKeyDown(KEY_PAGE_UP)) camera.position.y += 0.1f;
         if (IsKeyDown(KEY_PAGE_DOWN)) camera.position.y -= 0.1f;
         
-        // Update camera (only if right mouse button is being held)
+        // Modalità orbitale solo con il tasto destro del mouse (come backup)
         if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
             UpdateCamera(&camera, CAMERA_ORBITAL);
         }
         
         BeginDrawing();
-            ClearBackground(BLACK);  // CHANGE TO BLACK for maximum contrast
+            ClearBackground(BLACK);
             
             BeginMode3D(camera);
                 
                 // Draw coordinate grid for reference
                 DrawGrid(10, 1.0f);
                 
-                // Draw coordinate axes for reference - MAKE THEM LONGER
+                // Draw coordinate axes for reference
                 DrawLine3D((Vector3){0,0,0}, (Vector3){5,0,0}, RED);
                 DrawLine3D((Vector3){0,0,0}, (Vector3){0,5,0}, GREEN);
                 DrawLine3D((Vector3){0,0,0}, (Vector3){0,0,5}, BLUE);
@@ -88,9 +144,6 @@ void drawCube(Cube* cube) {
                         
                         for (int z = 0; z < SIZE; z++) {
                             float zPos = startPos + z * (cubeSize + gap);
-                            
-                            // Draw ALL cubes for debugging (remove outer layer check)
-                            // Later you can add back: if (x == 0 || x == SIZE-1 || y == 0 || y == SIZE-1 || z == 0 || z == SIZE-1)
                             
                             // Draw the small cube at position with wireframe for better visibility
                             DrawCubeWires((Vector3){xPos, yPos, zPos}, cubeSize, cubeSize, cubeSize, WHITE);
@@ -149,9 +202,11 @@ void drawCube(Cube* cube) {
                 
             EndMode3D();
             
-            DrawText("Arrow keys to move camera position", 10, 10, 20, WHITE);
-            DrawText("Right-click and drag to rotate view", 10, 40, 20, WHITE);
-            DrawText("PgUp/PgDn to change camera height", 10, 70, 20, WHITE);
+            // Aggiornamento istruzioni
+            DrawText("Tasto sinistro: Ruota la visuale", 10, 10, 20, WHITE);
+            DrawText("Rotella: Zoom avanti/indietro", 10, 40, 20, WHITE);
+            DrawText("Tasto destro: Modalità orbitale alternativa", 10, 70, 20, WHITE);
+            DrawText("Frecce/PgUp/PgDn: Muovi camera", 10, 100, 20, WHITE);
             
             // Display camera position
             DrawText(TextFormat("Camera: X=%.1f Y=%.1f Z=%.1f", 
@@ -163,5 +218,5 @@ void drawCube(Cube* cube) {
         EndDrawing();
     }
     
-    CloseWindow();  // Close window and OpenGL context
+    CloseWindow();
 }

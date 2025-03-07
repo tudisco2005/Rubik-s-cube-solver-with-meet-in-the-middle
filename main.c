@@ -7,9 +7,33 @@
 int main() {
     Cube *cube = initCube();
     
-    rotateDOWN(cube);
-    rotateR_DOWN(cube);
     drawCube(cube);
+
+    // Rotate the cube
+    // rotateDOWN(cube);
+    // drawCube(cube);
+    // rotateR_DOWN(cube);
+    // drawCube(cube);
+    // rotateUP(cube);
+    // drawCube(cube);
+    // rotateR_UP(cube);
+    // drawCube(cube);
+    // rotateLEFT(cube);
+    // drawCube(cube);
+    // rotateR_LEFT(cube);
+    // drawCube(cube);
+    // rotateRIGHT(cube);
+    // drawCube(cube);
+    // rotateR_RIGHT(cube);
+    // drawCube(cube);
+    // rotateFRONT(cube);
+    // drawCube(cube);
+    // rotateR_FRONT(cube);
+    // drawCube(cube);
+    // rotateBACK(cube);
+    // drawCube(cube);
+    // rotateR_BACK(cube);
+    // drawCube(cube);
 
     freeCube(cube);
 
