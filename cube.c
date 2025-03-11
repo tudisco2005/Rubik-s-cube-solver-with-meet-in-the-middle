@@ -457,44 +457,44 @@ void rotateR_LEFT(Cube* cube) {
 }
 
 // General rotation function that calls the appropriate specific function
-void rotate(Cube* cube, Move move) {
+char rotate(Cube* cube, Move move) {
     switch (move) {
         case MOVE_UP:
             rotateUP(cube);
-            break;
+            return 'U';
         case MOVE_R_UP:
             rotateR_UP(cube);
-            break;
+            return 'u';
         case MOVE_DOWN:
             rotateDOWN(cube);
-            break;
+            return 'D';
         case MOVE_R_DOWN:
             rotateR_DOWN(cube);
-            break;
+            return 'd';
         case MOVE_LEFT:
             rotateLEFT(cube);
-            break;
+            return 'L';
         case MOVE_R_LEFT:
             rotateR_LEFT(cube);
-            break;
+            return 'l';
         case MOVE_RIGHT:
             rotateRIGHT(cube);
-            break;
+            return 'R';
         case MOVE_R_RIGHT:
             rotateR_RIGHT(cube);
-            break;
+            return 'r';
         case MOVE_FRONT:
             rotateFRONT(cube);
-            break;
+            return 'F';
         case MOVE_R_FRONT:
             rotateR_FRONT(cube);
-            break;
+            return 'f';
         case MOVE_BACK:
             rotateBACK(cube);
-            break;
+            return 'B';
         case MOVE_R_BACK:
             rotateR_BACK(cube);
-            break;
+            return 'b';
     }
 }
 
@@ -547,6 +547,23 @@ void printCube(Cube* cube) {
             printf("\n");
         }
     }
+}
+
+char* scrambleCube(Cube* cube, int num_moves) {
+    char* moves = (char*)malloc(num_moves * sizeof(char) + 1);
+    if (!moves) {
+        perror("Error allocating memory for moves");
+        return NULL;
+    }
+
+    char a;
+    for (int i = 0; i < num_moves; i++) {
+        a = rotate(cube, rand() % (NUM_FACES * 2));
+        moves[i] = a;
+    }
+
+    moves[num_moves] = '\0';
+    return moves;
 }
 
 void freeCube(Cube* cube) {

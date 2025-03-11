@@ -61,7 +61,10 @@ void rotateFRONT(Cube* cube);
 void rotateR_FRONT(Cube* cube);
 void rotateBACK(Cube* cube);
 void rotateR_BACK(Cube* cube);
-void rotate(Cube* cube, Move move);
+char rotate(Cube* cube, Move move);
+
+char* scrambleCube(Cube* cube, int num_moves);
+
 void freeCube(Cube* cube);
 
 #endif // CUBE_H
