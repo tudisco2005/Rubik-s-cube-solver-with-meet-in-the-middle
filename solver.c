@@ -37,7 +37,7 @@ Cube* copyCube(Cube* cube) {
     return new_cube;
 }
 
-char* bruteforce(Cube* starting, Cube* end, int max_depth) {
+char* meetInTheMiddle(Cube* starting, Cube* end, int max_depth) {
     if (max_depth == 0 || !starting || !end) return NULL;
 
     // Base case

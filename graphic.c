@@ -18,7 +18,7 @@ Color GetFaceColor(int colorIndex) {
 }
 
 void drawCube(Cube* cube) {
-    const int screenWidth = 1600;
+    const int screenWidth = 1200;
     const int screenHeight = 800;
     const float cubeSize = 1.0f;
     const float gap = 0.1f;
@@ -188,66 +188,17 @@ void drawCube(Cube* cube) {
                 DrawSphere((Vector3){0,0,0}, 0.1f, YELLOW);
                 
                 // Draw each small cube that makes up the Rubik's cube
-                for (int x = 0; x < SIZE; x++) {
-                    float xPos = startPos + x * (cubeSize + gap);
-                    
-                    for (int y = 0; y < SIZE; y++) {
-                        float yPos = startPos + y * (cubeSize + gap);
-                        
-                        for (int z = 0; z < SIZE; z++) {
-                            float zPos = startPos + z * (cubeSize + gap);
+                for (int i = 0; i < SIZE; i++) {
+                    for (int j = 0; j < SIZE; j++) {
+                        for (int k = 0; k < SIZE; k++) {
+                            Vector3 position = {
+                                startPos + i * (cubeSize + gap),
+                                startPos + j * (cubeSize + gap),
+                                startPos + k * (cubeSize + gap)
+                            };
                             
-                            // Draw the small cube at position with wireframe for better visibility
-                            DrawCubeWires((Vector3){xPos, yPos, zPos}, cubeSize, cubeSize, cubeSize, WHITE);
+                            // Draw the cube with the corresponding color
                             
-                            // Draw colored faces based on the cube's state with more offset
-                            // Front face (FACE_FRONT)
-                            if (z == SIZE-1) {
-                                Color faceColor = GetFaceColor(cube->color[FACE_FRONT][y][x]);
-                                DrawCubeV((Vector3){xPos, yPos, zPos + cubeSize/2 * 0.8f}, 
-                                          (Vector3){cubeSize * 0.9f, cubeSize * 0.9f, 0.05f}, 
-                                          faceColor);
-                            }
-                            
-                            // Back face (FACE_BACK)
-                            if (z == 0) {
-                                Color faceColor = GetFaceColor(cube->color[FACE_BACK][y][SIZE-1-x]);
-                                DrawCubeV((Vector3){xPos, yPos, zPos - cubeSize/2 * 0.8f}, 
-                                          (Vector3){cubeSize * 0.9f, cubeSize * 0.9f, 0.05f}, 
-                                          faceColor);
-                            }
-                            
-                            // Right face (FACE_RIGHT)
-                            if (x == SIZE-1) {
-                                Color faceColor = GetFaceColor(cube->color[FACE_RIGHT][y][SIZE-1-z]);
-                                DrawCubeV((Vector3){xPos + cubeSize/2 * 0.8f, yPos, zPos}, 
-                                          (Vector3){0.05f, cubeSize * 0.9f, cubeSize * 0.9f}, 
-                                          faceColor);
-                            }
-                            
-                            // Left face (FACE_LEFT)
-                            if (x == 0) {
-                                Color faceColor = GetFaceColor(cube->color[FACE_LEFT][y][z]);
-                                DrawCubeV((Vector3){xPos - cubeSize/2 * 0.8f, yPos, zPos}, 
-                                          (Vector3){0.05f, cubeSize * 0.9f, cubeSize * 0.9f}, 
-                                          faceColor);
-                            }
-                            
-                            // Top face (FACE_UP)
-                            if (y == 0) {
-                                Color faceColor = GetFaceColor(cube->color[FACE_UP][z][x]);
-                                DrawCubeV((Vector3){xPos, yPos - cubeSize/2 * 0.8f, zPos}, 
-                                          (Vector3){cubeSize * 0.9f, 0.05f, cubeSize * 0.9f}, 
-                                          faceColor);
-                            }
-                            
-                            // Bottom face (FACE_DOWN)
-                            if (y == SIZE-1) {
-                                Color faceColor = GetFaceColor(cube->color[FACE_DOWN][SIZE-1-z][x]);
-                                DrawCubeV((Vector3){xPos, yPos + cubeSize/2 * 0.8f, zPos}, 
-                                          (Vector3){cubeSize * 0.9f, 0.05f, cubeSize * 0.9f}, 
-                                          faceColor);
-                            }
                         }
                     }
                 }
@@ -280,7 +231,7 @@ void drawCube(Cube* cube) {
             // Draw UP face
             for (int y = 0; y < SIZE; y++) {
                 for (int x = 0; x < SIZE; x++) {
-                    Color cellColor = GetFaceColor(cube->color[FACE_DOWN][y][x]);
+                    Color cellColor = GetFaceColor(cube->color[FACE_UP][y][x]);
                     DrawRectangle(
                         rectUp.x + x * cellSize, 
                         rectUp.y + y * cellSize, 
@@ -345,7 +296,7 @@ void drawCube(Cube* cube) {
             // Draw DOWN face
             for (int y = 0; y < SIZE; y++) {
                 for (int x = 0; x < SIZE; x++) {
-                    Color cellColor = GetFaceColor(cube->color[FACE_UP][y][x]);
+                    Color cellColor = GetFaceColor(cube->color[FACE_DOWN][y][x]);
                     DrawRectangle(
                         rectDown.x + x * cellSize, 
                         rectDown.y + y * cellSize, 

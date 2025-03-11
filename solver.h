@@ -7,6 +7,6 @@
 
 int evalCube(Cube* cube);
 Cube* copyCube(Cube* cube);
-char* bruteforce(Cube* starting, Cube* end, int max_depth);
+char* meetInTheMiddle(Cube* starting, Cube* end, int max_depth);
 
 #endif

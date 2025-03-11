@@ -17,12 +17,12 @@ typedef enum {
 } Face;
 
 typedef enum {
-    COLOR_YELLOW = 0,
-    COLOR_WHITE,
-    COLOR_BLUE,
-    COLOR_GREEN,
-    COLOR_ORANGE,
-    COLOR_RED
+    COLOR_WHITE = 0,
+    COLOR_YELLOW = 1,
+    COLOR_ORANGE = 2,
+    COLOR_RED = 3,
+    COLOR_GREEN = 4,
+    COLOR_BLUE = 5
 } ColorFace;
 
 
@@ -42,7 +42,7 @@ typedef enum {
 } Move;
 
 typedef struct {
-    int color[NUM_FACES][SIZE][SIZE];
+    char color[NUM_FACES][SIZE][SIZE];
 } Cube;
 
 Cube* initCube();
@@ -63,7 +63,8 @@ void rotateBACK(Cube* cube);
 void rotateR_BACK(Cube* cube);
 char rotate(Cube* cube, Move move);
 
-char* scrambleCube(Cube* cube, int num_moves);
+char* scrambleCubeRandom(Cube* cube, int num_moves);
+char* scrambleCube(Cube* cube, char* moves);
 
 void freeCube(Cube* cube);
 

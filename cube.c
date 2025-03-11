@@ -1,7 +1,9 @@
 #include "cube.h"
 #include "utils.h"
+#include "graphic.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 Cube* initCube() {
     Cube* cube = NULL;
@@ -14,26 +16,25 @@ Cube* initCube() {
     // Standard color scheme mapping:
     // UP (top) = WHITE
     // DOWN (bottom) = YELLOW
-    // LEFT = BLUE
-    // RIGHT = GREEN
-    // FRONT = RED
-    // BACK = ORANGE
+    // LEFT = ORANGE
+    // RIGHT = RED
+    // FRONT = GREEN
+    // BACK = BLUE
 
     // Initialize each face with its color
     for (int j = 0; j < SIZE; j++) {
         for (int k = 0; k < SIZE; k++) {
             cube->color[FACE_UP][j][k] = COLOR_WHITE;     // Top face is white
             cube->color[FACE_DOWN][j][k] = COLOR_YELLOW;  // Bottom face is yellow
-            cube->color[FACE_LEFT][j][k] = COLOR_BLUE;    // Left face is blue
-            cube->color[FACE_RIGHT][j][k] = COLOR_GREEN;  // Right face is green
-            cube->color[FACE_FRONT][j][k] = COLOR_RED;    // Front face is red
-            cube->color[FACE_BACK][j][k] = COLOR_ORANGE;  // Back face is orange
+            cube->color[FACE_LEFT][j][k] = COLOR_ORANGE;  // Left face is orange
+            cube->color[FACE_RIGHT][j][k] = COLOR_RED;    // Right face is red
+            cube->color[FACE_FRONT][j][k] = COLOR_GREEN;  // Front face is green
+            cube->color[FACE_BACK][j][k] = COLOR_BLUE;    // Back face is blue
         }
     }
 
     return cube;
 }
-
 // Helper function to rotate a single face clockwise
 static void rotateFaceClockwise(Cube* cube, Face face) {
     int temp[SIZE][SIZE];
@@ -72,7 +73,8 @@ static void rotateFaceCounterClockwise(Cube* cube, Face face) {
     }
 }
 
-void rotateR_DOWN(Cube* cube) {
+// Rotate DOWN face clockwise
+void rotateDOWN(Cube* cube) {
     int temp[SIZE];
     
     // Store the front row temporarily
@@ -104,7 +106,8 @@ void rotateR_DOWN(Cube* cube) {
     rotateFaceClockwise(cube, FACE_DOWN);
 }
 
-void rotateDOWN(Cube* cube) {
+// Rotate DOWN face counter-clockwise
+void rotateR_DOWN(Cube* cube) {
     int temp[SIZE];
     
     // Store the front row temporarily
@@ -136,39 +139,8 @@ void rotateDOWN(Cube* cube) {
     rotateFaceCounterClockwise(cube, FACE_DOWN);
 }
 
+// Rotate UP face clockwise
 void rotateR_UP(Cube* cube) {
-    int temp[SIZE];
-    
-    // Store the front row temporarily
-    for (int i = 0; i < SIZE; i++) {
-        temp[i] = cube->color[FACE_FRONT][0][i];
-    }
-    
-    // FRONT -> LEFT
-    for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_FRONT][0][i] = cube->color[FACE_RIGHT][0][i];
-    }
-    
-    // RIGHT -> BACK
-    for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_RIGHT][0][i] = cube->color[FACE_BACK][0][i];
-    }
-    
-    // BACK -> LEFT
-    for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_BACK][0][i] = cube->color[FACE_LEFT][0][i];
-    }
-    
-    // LEFT -> FRONT (from temp)
-    for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_LEFT][0][i] = temp[i];
-    }
-    
-    // Rotate the UP face clockwise
-    rotateFaceClockwise(cube, FACE_UP);
-}
-
-void rotateUP(Cube* cube) {
     int temp[SIZE];
     
     // Store the front row temporarily
@@ -196,11 +168,43 @@ void rotateUP(Cube* cube) {
         cube->color[FACE_RIGHT][0][i] = temp[i];
     }
     
-    // Rotate the UP face counter-clockwise
     rotateFaceCounterClockwise(cube, FACE_UP);
 }
 
-void rotateR_BACK(Cube* cube) {
+// Rotate UP face clockwise
+void rotateUP(Cube* cube) {
+    int temp[SIZE];
+    
+    // Store the front row temporarily
+    for (int i = 0; i < SIZE; i++) {
+        temp[i] = cube->color[FACE_FRONT][0][i];
+    }
+    
+    // FRONT -> LEFT
+    for (int i = 0; i < SIZE; i++) {
+        cube->color[FACE_FRONT][0][i] = cube->color[FACE_RIGHT][0][i];
+    }
+    
+    // RIGHT -> BACK
+    for (int i = 0; i < SIZE; i++) {
+        cube->color[FACE_RIGHT][0][i] = cube->color[FACE_BACK][0][i];
+    }
+    
+    // BACK -> LEFT
+    for (int i = 0; i < SIZE; i++) {
+        cube->color[FACE_BACK][0][i] = cube->color[FACE_LEFT][0][i];
+    }
+    
+    // LEFT -> FRONT (from temp)
+    for (int i = 0; i < SIZE; i++) {
+        cube->color[FACE_LEFT][0][i] = temp[i];
+    }
+    
+    rotateFaceClockwise(cube, FACE_UP);
+}
+
+// Rotate LEFT face clockwise
+void rotateLEFT(Cube* cube) {
     int temp[SIZE];
     
     // Store the front column temporarily
@@ -232,7 +236,8 @@ void rotateR_BACK(Cube* cube) {
     rotateFaceClockwise(cube, FACE_LEFT);
 }
 
-void rotateBACK(Cube* cube) {
+// Rotate LEFT face counter-clockwise
+void rotateR_LEFT(Cube* cube) {
     int temp[SIZE];
     
     // Store the front column temporarily
@@ -264,7 +269,8 @@ void rotateBACK(Cube* cube) {
     rotateFaceCounterClockwise(cube, FACE_LEFT);
 }
 
-void rotateR_FRONT(Cube* cube) {
+// Rotate RIGHT face clockwise
+void rotateRIGHT(Cube* cube) {
     int temp[SIZE];
     
     // Store the front column temporarily
@@ -296,7 +302,8 @@ void rotateR_FRONT(Cube* cube) {
     rotateFaceClockwise(cube, FACE_RIGHT);
 }
 
-void rotateFRONT(Cube* cube) {
+// Rotate RIGHT face counter-clockwise
+void rotateR_RIGHT(Cube* cube) {
     int temp[SIZE];
     
     // Store the front column temporarily
@@ -328,7 +335,8 @@ void rotateFRONT(Cube* cube) {
     rotateFaceCounterClockwise(cube, FACE_RIGHT);
 }
 
-void rotateRIGHT(Cube* cube) {
+// Rotate FRONT face clockwise
+void rotateFRONT(Cube* cube) {
     int temp[SIZE];
     
     // Store the up row temporarily
@@ -336,31 +344,32 @@ void rotateRIGHT(Cube* cube) {
         temp[i] = cube->color[FACE_UP][SIZE-1][i];
     }
     
-    // UP -> LEFT (with reversion)
+    // UP -> RIGHT (with reversion)
     for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_UP][SIZE-1][i] = cube->color[FACE_RIGHT][SIZE-1-i][0];
+        cube->color[FACE_UP][SIZE-1][i] = cube->color[FACE_LEFT][SIZE-1-i][SIZE-1];
     }
     
-    // RIGHT -> DOWN
+    // LEFT -> DOWN
     for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_RIGHT][i][0] = cube->color[FACE_DOWN][0][i];
+        cube->color[FACE_LEFT][i][SIZE-1] = cube->color[FACE_DOWN][0][i];
     }
     
-    // DOWN -> LEFT (with reversion)
+    // DOWN -> RIGHT(with reversion)
     for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_DOWN][0][i] = cube->color[FACE_LEFT][SIZE-1-i][SIZE-1];
+        cube->color[FACE_DOWN][0][i] = cube->color[FACE_RIGHT][SIZE-i-1][0];
     }
     
-    // LEFT -> UP (from temp)
+    // RIGHT -> UP
     for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_LEFT][i][SIZE-1] = temp[i];
+        cube->color[FACE_RIGHT][i][0] = temp[i];
     }
     
     // Rotate the FRONT face clockwise
     rotateFaceClockwise(cube, FACE_FRONT);
 }
 
-void rotateR_RIGHT(Cube* cube) {
+// Rotate FRONT face counter-clockwise
+void rotateR_FRONT(Cube* cube) {
     int temp[SIZE];
     
     // Store the up row temporarily
@@ -368,31 +377,32 @@ void rotateR_RIGHT(Cube* cube) {
         temp[i] = cube->color[FACE_UP][SIZE-1][i];
     }
     
-    // UP -> RIGHT
+    // UP -> LEFT
     for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_UP][SIZE-1][i] = cube->color[FACE_LEFT][i][SIZE-1];
+        cube->color[FACE_UP][SIZE-1][i] = cube->color[FACE_RIGHT][i][0];
     }
     
-    // LEFT -> DOWN (with reversion)
+    // RIGHT -> DOWN (with reversion)
     for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_LEFT][i][SIZE-1] = cube->color[FACE_DOWN][0][SIZE-1-i];
+        cube->color[FACE_RIGHT][i][0] = cube->color[FACE_DOWN][0][SIZE-1-i];
     }
     
-    // DOWN -> RIGHT (with reversion)
+    // DOWN -> LEFT 
     for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_DOWN][0][i] = cube->color[FACE_RIGHT][i][0];
+        cube->color[FACE_DOWN][0][i] = cube->color[FACE_LEFT][i][SIZE-1];
     }
     
-    // RIGHT -> UP (from temp, with reversion)
+    // LEFT -> UP
     for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_RIGHT][i][0] = temp[i];
+        cube->color[FACE_LEFT][i][SIZE-1] = temp[i];
     }
     
     // Rotate the FRONT face counter-clockwise
     rotateFaceCounterClockwise(cube, FACE_FRONT);
 }
 
-void rotateLEFT(Cube* cube) {
+// Rotate BACK face clockwise
+void rotateBACK(Cube* cube) {
     int temp[SIZE];
     
     // Store the up row temporarily
@@ -400,31 +410,32 @@ void rotateLEFT(Cube* cube) {
         temp[i] = cube->color[FACE_UP][0][i];
     }
     
-    // UP -> RIGHT
+    // UP -> LEFT
     for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_UP][0][i] = cube->color[FACE_LEFT][i][0];
+        cube->color[FACE_UP][0][i] = cube->color[FACE_RIGHT][i][SIZE-1];
     }
     
-    // LEFT -> DOWN (with reversion)
+    // RIGHT -> DOWN (with reversion)
     for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_LEFT][i][0] = cube->color[FACE_DOWN][SIZE-1][SIZE-1-i];
+        cube->color[FACE_RIGHT][i][SIZE-1] = cube->color[FACE_DOWN][SIZE-1][SIZE-1-i];
     }
     
-    // DOWN -> RIGHT (with reversion)
+    // DOWN -> LEFT ()
     for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_DOWN][SIZE-1][i] = cube->color[FACE_RIGHT][i][SIZE-1];
+        cube->color[FACE_DOWN][SIZE-1][i] = cube->color[FACE_LEFT][i][0];
     }
     
-    // RIGHT -> UP (from temp, with reversion)
+    // LEFT -> UP
     for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_RIGHT][i][SIZE-1] = temp[i];
+        cube->color[FACE_LEFT][i][0] = temp[i];
     }
     
     // Rotate the BACK face clockwise
     rotateFaceClockwise(cube, FACE_BACK);
 }
 
-void rotateR_LEFT(Cube* cube) {
+// Rotate BACK face counter-clockwise
+void rotateR_BACK(Cube* cube) {
     int temp[SIZE];
     
     // Store the up row temporarily
@@ -432,30 +443,29 @@ void rotateR_LEFT(Cube* cube) {
         temp[i] = cube->color[FACE_UP][0][i];
     }
     
-    // UP -> LEFT (with reversion)
+    // UP -> RIGHT (with reversion)
     for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_UP][0][i] = cube->color[FACE_RIGHT][SIZE-1-i][SIZE-1];
+        cube->color[FACE_UP][0][i] = cube->color[FACE_LEFT][SIZE-1-i][0];
     }
     
-    // RIGHT -> DOWN
+    // LEFT -> DOWN
     for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_RIGHT][i][SIZE-1] = cube->color[FACE_DOWN][SIZE-1][i];
+        cube->color[FACE_LEFT][i][0] = cube->color[FACE_DOWN][SIZE-1][i];
     }
     
-    // DOWN -> LEFT (with reversion)
+    // DOWN -> RIGHT (with reversion)
     for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_DOWN][SIZE-1][i] = cube->color[FACE_LEFT][SIZE-1-i][0];
+        cube->color[FACE_DOWN][SIZE-1][i] = cube->color[FACE_RIGHT][SIZE-1-i][SIZE-1];
     }
     
-    // LEFT -> UP (from temp)
+    // RIGHT -> UP
     for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_LEFT][i][0] = temp[i];
+        cube->color[FACE_RIGHT][i][SIZE-1] = temp[i];
     }
     
     // Rotate the BACK face counter-clockwise
     rotateFaceCounterClockwise(cube, FACE_BACK);
 }
-
 // General rotation function that calls the appropriate specific function
 char rotate(Cube* cube, Move move) {
     switch (move) {
@@ -549,7 +559,7 @@ void printCube(Cube* cube) {
     }
 }
 
-char* scrambleCube(Cube* cube, int num_moves) {
+char* scrambleCubeRandom(Cube* cube, int num_moves) {
     char* moves = (char*)malloc(num_moves * sizeof(char) + 1);
     if (!moves) {
         perror("Error allocating memory for moves");
@@ -563,6 +573,60 @@ char* scrambleCube(Cube* cube, int num_moves) {
     }
 
     moves[num_moves] = '\0';
+    return moves;
+}
+
+char* scrambleCube(Cube* cube, char* moves) {
+    if (!moves) {
+        perror("Error allocating memory for moves");
+        return NULL;
+    }
+
+    if (strlen(moves) == 0) {
+        return NULL;
+    }
+
+    int num_moves = strlen(moves);
+    for (int i = 0; i < num_moves; i++) {
+        switch (moves[i]) {
+            case 'U':
+                rotateUP(cube);
+                break;
+            case 'u':
+                rotateR_UP(cube);
+                break;
+            case 'D':
+                rotateDOWN(cube);
+                break;
+            case 'd':
+                rotateR_DOWN(cube);
+                break;
+            case 'L':
+                rotateLEFT(cube);
+                break;
+            case 'l':
+                rotateR_LEFT(cube);
+                break;
+            case 'R':
+                rotateRIGHT(cube);
+                break;
+            case 'r':
+                rotateR_RIGHT(cube);
+                break;
+            case 'F':
+                rotateFRONT(cube);
+                break;
+            case 'f':
+                rotateR_FRONT(cube);
+                break;
+            case 'B':
+                rotateBACK(cube);
+                break;
+            case 'b':
+                rotateR_BACK(cube);
+                break;
+        }
+    }
     return moves;
 }
 
