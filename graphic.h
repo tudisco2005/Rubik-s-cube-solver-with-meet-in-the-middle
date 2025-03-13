@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include "cube.h"
+#include "solver.h"
 
 void drawCube(Cube* cube);
 Color GetFaceColor(int colorIndex);

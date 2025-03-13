@@ -8,21 +8,31 @@
 
 int main() {
     Cube *cube = initCube();
-    //char scramble_config[] = "LRuFBR";
-    char scramble_config[] = "lrUfbr";
+    // char scramble_config[] = "L R u F B R"; // 6 moves
+    // char scramble_config[] = "l r U f b r"; // 14 moves - 6 moves
+    // char scramble_config[] = "R L F u D F2 R L"; // 15 moves - 8 moves
+    char scramble_config[] = "L R F B U D l r f b u d"; // 15 moves
+    // char scramble_config[] = "R L U2 F u D F2 R2 B2 L U2 f b U R2 D F2 U R2 U"; // 20 moves
 
-    drawCube(cube);
-    printCube(cube);
+    // drawCube(cube);
+    // printCube(cube);
     
     // Scramble the cube
     scrambleCube(cube, scramble_config);
-    drawCube(cube);
+    // drawCube(cube);
     printCube(cube);
 
-    printf("memory size: %ld\n", sizeof(*cube));
     // Solve the cube
     Cube *end = initCube();
 
+    printf("scramble_config: %s\n", scramble_config);
+    char* solution = meetInTheMiddle(cube, end, 7);
+    printf("\nSolution: %s\n", solution);
+
+    scrambleCube(cube, solution);
+    printCube(cube);
+
+    if(solution) free(solution);
     freeCube(cube);
     freeCube(end);
     return 0;

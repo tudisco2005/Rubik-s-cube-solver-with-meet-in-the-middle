@@ -10,7 +10,6 @@
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
 #define PRINT_YELLOW(x) printf("%s%s%s ", ANSI_COLOR_YELLOW, x, ANSI_COLOR_RESET);
-// Remove the duplicate PRINT_YELLOW definition below
 #define PRINT_RED(x) printf("%s%s%s ", ANSI_COLOR_RED, x, ANSI_COLOR_RESET);
 #define PRINT_GREEN(x) printf("%s%s%s ", ANSI_COLOR_GREEN, x, ANSI_COLOR_RESET);
 #define PRINT_BLUE(x) printf("%s%s%s ", ANSI_COLOR_BLUE, x, ANSI_COLOR_RESET);
@@ -18,5 +17,9 @@
 #define PRINT_WHITE(x) printf("%s%s%s ", ANSI_COLOR_WHITE, x, ANSI_COLOR_RESET);
 
 void shift_array(int* arr, int size, int k);
+char* strdup(const char *c);
+
+// Converti l'indice di un movimento in una stringa leggibile
+char* getMoveString(int moveIdx);
 
 #endif // UTILS_H

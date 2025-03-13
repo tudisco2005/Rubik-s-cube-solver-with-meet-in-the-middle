@@ -36,7 +36,7 @@ Cube* initCube() {
     return cube;
 }
 // Helper function to rotate a single face clockwise
-static void rotateFaceClockwise(Cube* cube, Face face) {
+void rotateFaceClockwise(Cube* cube, Face face) {
     int temp[SIZE][SIZE];
     
     // Copy the current state to a temporary array
@@ -55,7 +55,7 @@ static void rotateFaceClockwise(Cube* cube, Face face) {
 }
 
 // Helper function to rotate a single face counter-clockwise
-static void rotateFaceCounterClockwise(Cube* cube, Face face) {
+void rotateFaceCounterClockwise(Cube* cube, Face face) {
     int temp[SIZE][SIZE];
     
     // Copy the current state to a temporary array
@@ -71,6 +71,36 @@ static void rotateFaceCounterClockwise(Cube* cube, Face face) {
             cube->color[face][SIZE-1-j][i] = temp[i][j];
         }
     }
+}
+
+void rotateUP_2(Cube* cube) {
+    rotateUP(cube);
+    rotateUP(cube);
+}
+
+void rotateDOWN_2(Cube* cube) {
+    rotateDOWN(cube);
+    rotateDOWN(cube);
+}
+
+void rotateLEFT_2(Cube* cube) {
+    rotateLEFT(cube);
+    rotateLEFT(cube);
+}
+
+void rotateRIGHT_2(Cube* cube) {
+    rotateRIGHT(cube);
+    rotateRIGHT(cube);
+}
+
+void rotateFRONT_2(Cube* cube) {
+    rotateFRONT(cube);
+    rotateFRONT(cube);
+}
+
+void rotateBACK_2(Cube* cube) {
+    rotateBACK(cube);
+    rotateBACK(cube);
 }
 
 // Rotate DOWN face clockwise
@@ -392,9 +422,9 @@ void rotateR_FRONT(Cube* cube) {
         cube->color[FACE_DOWN][0][i] = cube->color[FACE_LEFT][i][SIZE-1];
     }
     
-    // LEFT -> UP
+    // LEFT -> UP(with reversion)
     for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_LEFT][i][SIZE-1] = temp[i];
+        cube->color[FACE_LEFT][i][2] = temp[SIZE-i-1];
     }
     
     // Rotate the FRONT face counter-clockwise
@@ -425,9 +455,9 @@ void rotateBACK(Cube* cube) {
         cube->color[FACE_DOWN][SIZE-1][i] = cube->color[FACE_LEFT][i][0];
     }
     
-    // LEFT -> UP
+    // LEFT -> UP(with reversion)
     for (int i = 0; i < SIZE; i++) {
-        cube->color[FACE_LEFT][i][0] = temp[i];
+        cube->color[FACE_LEFT][i][0] = temp[SIZE-1-i];
     }
     
     // Rotate the BACK face clockwise
@@ -466,46 +496,95 @@ void rotateR_BACK(Cube* cube) {
     // Rotate the BACK face counter-clockwise
     rotateFaceCounterClockwise(cube, FACE_BACK);
 }
+
 // General rotation function that calls the appropriate specific function
-char rotate(Cube* cube, Move move) {
+char* rotate(Cube* cube, Move move) {
+    char* a;
+    a = (char*) malloc(3 * sizeof(char));
+    if (!a) {
+        perror("Error allocating memory for move");
+        return NULL;
+    }
+
     switch (move) {
         case MOVE_UP:
             rotateUP(cube);
-            return 'U';
+            strcpy(a, "U");
+            break;
         case MOVE_R_UP:
             rotateR_UP(cube);
-            return 'u';
+            strcpy(a, "u");
+            break;
+        case MOVE_2_UP:
+            rotateUP_2(cube);
+            strcpy(a, "U2");
+            break;
         case MOVE_DOWN:
             rotateDOWN(cube);
-            return 'D';
+            strcpy(a, "D");
+            break;
         case MOVE_R_DOWN:
             rotateR_DOWN(cube);
-            return 'd';
+            strcpy(a, "d");
+            break;
+        case MOVE_2_DOWN:
+            rotateDOWN_2(cube);
+            strcpy(a, "D2");
+            break;
         case MOVE_LEFT:
             rotateLEFT(cube);
-            return 'L';
+            strcpy(a, "L");
+            break;
         case MOVE_R_LEFT:
             rotateR_LEFT(cube);
-            return 'l';
+            strcpy(a, "l");
+            break;
+        case MOVE_2_LEFT:
+            rotateLEFT_2(cube);
+            strcpy(a, "L2");
+            break;
         case MOVE_RIGHT:
             rotateRIGHT(cube);
-            return 'R';
+            strcpy(a, "R");
+            break;
         case MOVE_R_RIGHT:
             rotateR_RIGHT(cube);
-            return 'r';
+            strcpy(a, "r");
+            break;
+        case MOVE_2_RIGHT:
+            rotateRIGHT_2(cube);
+            strcpy(a, "R2");
+            break;
         case MOVE_FRONT:
             rotateFRONT(cube);
-            return 'F';
+            strcpy(a, "F");
+            break;
         case MOVE_R_FRONT:
             rotateR_FRONT(cube);
-            return 'f';
+            strcpy(a, "f");
+            break;
+        case MOVE_2_FRONT:
+            rotateFRONT_2(cube);
+            strcpy(a, "F2");
+            break;
         case MOVE_BACK:
             rotateBACK(cube);
-            return 'B';
+            strcpy(a, "B");
+            break;
         case MOVE_R_BACK:
             rotateR_BACK(cube);
-            return 'b';
+            strcpy(a, "b");
+            break;
+        case MOVE_2_BACK:
+            rotateBACK_2(cube);
+            strcpy(a, "B2");
+            break;
+        default:
+            strcpy(a, "!");
+            break;
     }
+
+    return a;
 }
 
 void printCube(Cube* cube) {
@@ -566,10 +645,10 @@ char* scrambleCubeRandom(Cube* cube, int num_moves) {
         return NULL;
     }
 
-    char a;
+    char* a;
     for (int i = 0; i < num_moves; i++) {
-        a = rotate(cube, rand() % (NUM_FACES * 2));
-        moves[i] = a;
+        a = rotate(cube, rand() % (NUM_MOVES));
+        strcat(moves,a);
     }
 
     moves[num_moves] = '\0';
@@ -577,57 +656,76 @@ char* scrambleCubeRandom(Cube* cube, int num_moves) {
 }
 
 char* scrambleCube(Cube* cube, char* moves) {
-    if (!moves) {
-        perror("Error allocating memory for moves");
+    if (!moves || strlen(moves) == 0) {
         return NULL;
     }
 
-    if (strlen(moves) == 0) {
+    char *moves_copy = strdup(moves); // Duplicate string to avoid modifying original
+    if (!moves_copy) {
+        perror("Error allocating memory for move copy");
         return NULL;
     }
 
-    int num_moves = strlen(moves);
-    for (int i = 0; i < num_moves; i++) {
-        switch (moves[i]) {
-            case 'U':
-                rotateUP(cube);
-                break;
-            case 'u':
-                rotateR_UP(cube);
-                break;
-            case 'D':
-                rotateDOWN(cube);
-                break;
-            case 'd':
-                rotateR_DOWN(cube);
-                break;
-            case 'L':
-                rotateLEFT(cube);
-                break;
-            case 'l':
-                rotateR_LEFT(cube);
-                break;
-            case 'R':
-                rotateRIGHT(cube);
-                break;
-            case 'r':
-                rotateR_RIGHT(cube);
-                break;
-            case 'F':
-                rotateFRONT(cube);
-                break;
-            case 'f':
-                rotateR_FRONT(cube);
-                break;
-            case 'B':
-                rotateBACK(cube);
-                break;
-            case 'b':
-                rotateR_BACK(cube);
-                break;
+    char *tokens[1024];
+    int index = 0;
+
+    // Split the moves string into tokens
+    char *token = strtok(moves_copy, " ");
+    while (token && index < 1024) {
+        tokens[index++] = token;
+        token = strtok(NULL, " ");
+    }
+
+    // Process moves
+    for (int i = 0; i < index; i++) {
+        int move = -1;
+        if (strcmp(tokens[i], "U") == 0) {
+            move = MOVE_UP;
+        } else if (strcmp(tokens[i], "u") == 0) {
+            move = MOVE_R_UP;
+        } else if (strcmp(tokens[i], "U2") == 0 || strcmp(tokens[i], "u2") == 0) {
+            move = MOVE_2_UP;
+        } else if (strcmp(tokens[i], "D") == 0) {
+            move = MOVE_DOWN;
+        } else if (strcmp(tokens[i], "d") == 0) {
+            move = MOVE_R_DOWN;
+        } else if (strcmp(tokens[i], "D2") == 0 || strcmp(tokens[i], "d2") == 0) {
+            move = MOVE_2_DOWN;
+        } else if (strcmp(tokens[i], "L") == 0) {
+            move = MOVE_LEFT;
+        } else if (strcmp(tokens[i], "l") == 0) {
+            move = MOVE_R_LEFT;
+        } else if (strcmp(tokens[i], "L2") == 0 || strcmp(tokens[i], "l2") == 0) {
+            move = MOVE_2_LEFT;
+        } else if (strcmp(tokens[i], "R") == 0) {
+            move = MOVE_RIGHT;
+        } else if (strcmp(tokens[i], "r") == 0) {
+            move = MOVE_R_RIGHT;
+        } else if (strcmp(tokens[i], "R2") == 0 || strcmp(tokens[i], "r2") == 0) {
+            move = MOVE_2_RIGHT;
+        } else if (strcmp(tokens[i], "F") == 0) {
+            move = MOVE_FRONT;
+        } else if (strcmp(tokens[i], "f") == 0) {
+            move = MOVE_R_FRONT;
+        } else if (strcmp(tokens[i], "F2") == 0 || strcmp(tokens[i], "f2") == 0) {
+            move = MOVE_2_FRONT;
+        } else if (strcmp(tokens[i], "B") == 0) {
+            move = MOVE_BACK;
+        } else if (strcmp(tokens[i], "b") == 0) {
+            move = MOVE_R_BACK;
+        } else if (strcmp(tokens[i], "B2") == 0 || strcmp(tokens[i], "b2") == 0) {
+            move = MOVE_2_BACK;
+        } else {
+            fprintf(stderr, "Invalid move: %s\n", tokens[i]);
+            free(moves_copy);
+            return NULL;
         }
+
+        rotate(cube, move);
     }
-    return moves;
+
+    free(moves_copy);
+    return strdup(moves);  // Return a new copy of the moves string
 }
 
 void freeCube(Cube* cube) {
