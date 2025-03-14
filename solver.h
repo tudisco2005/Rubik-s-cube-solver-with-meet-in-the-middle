@@ -21,5 +21,6 @@ int expandGraph(Node*** graph, long long size, int* curr_depth, int max_depth);
 char* meetInTheMiddle(Cube* starting, Cube* end, int max_depth);
 char* reverseMoves(char* moves, int len);
 void reverseTokens(const char *input, char *output);
+char* checkForMatch(Node* start_node, Node* end_node);
 
 #endif

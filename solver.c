@@ -328,8 +328,70 @@ char* collectPath(Node* node) {
     return result;
 }
 
-// Improved Meet in the Middle algorithm implementation
-// Improved Meet in the Middle algorithm implementation
+// Function to check for matching cubes and build the solution
+char* checkForMatch(Node* start_node, Node* end_node) {
+    printf("\n[+] Match found at depths %d and %d\n", 
+           start_node->depth, end_node->depth);
+    
+    // Collect the path from the starting (forward) search
+    printf("Collecting path from start\n");
+    char* pathForward = collectPath(start_node);
+    if (!pathForward) {
+        return NULL;
+    }
+    
+    // Collect the path from end
+    printf("Collecting path from end\n");
+    char* pathEnd = collectPath(end_node);
+    if (!pathEnd) {
+        free(pathForward);
+        return NULL;
+    }
+    
+    // We need to reverse the moves in the end path
+    size_t pathEndLen = strlen(pathEnd);
+    char* formattedPathEnd = (char*)malloc(pathEndLen + 1);
+    if (!formattedPathEnd) {
+        perror("Error allocating memory for formatted path");
+        free(pathForward);
+        free(pathEnd);
+        return NULL;
+    }
+    
+    // Create reversed moves
+    reverseTokens(pathEnd, formattedPathEnd);
+    
+    // Now invert each move (uppercase to lowercase and vice versa)
+    char* invertedEnd = reverseMoves(formattedPathEnd, strlen(formattedPathEnd));
+    if (!invertedEnd) {
+        free(pathForward);
+        free(pathEnd);
+        free(formattedPathEnd);
+        return NULL;
+    }
+    free(pathEnd);
+    free(formattedPathEnd);
+
+    // Combine the paths
+    size_t finalLen = strlen(pathForward) + strlen(invertedEnd) + 1;
+    char* finalSolution = (char*)malloc(finalLen);
+    if (!finalSolution) {
+        perror("Error allocating memory for final solution");
+        free(pathForward);
+        free(invertedEnd);
+        return NULL;
+    }
+    
+    // Concatenate the paths
+    strcpy(finalSolution, pathForward);
+    strcat(finalSolution, invertedEnd);
+    
+    free(pathForward);
+    free(invertedEnd);
+    
+    return finalSolution;
+}
+
 char* meetInTheMiddle(Cube* starting, Cube* end, int max_depth) {
     if (max_depth == 0 || !starting || !end) return NULL;
 
@@ -340,6 +402,11 @@ char* meetInTheMiddle(Cube* starting, Cube* end, int max_depth) {
     long long end_size = 1;
     int starting_depth = 0;
     int end_depth = 0;
+
+    // Check if start and end cubes are the same
+    if (compareCubes(starting, end)) {
+        return strdup("");
+    }
 
     // adding the starting cube to the graph
     starting_graph = (Node**)malloc(sizeof(Node*) * starting_size);
@@ -379,74 +446,23 @@ char* meetInTheMiddle(Cube* starting, Cube* end, int max_depth) {
     end_graph[0]->depth = 0;
     end_graph[0]->move = NULL; // end cube not moved
 
-    // Check if start and end cubes are the same
-    if (compareCubes(starting, end)) {
-        freeGraph(starting_graph, starting_size);
-        freeGraph(end_graph, end_size);
-        return strdup("");
-    }
-
     // Start the bidirectional search
     while (starting_depth < max_depth && end_depth < max_depth) {
         // Check for matches before expanding
         printf("---- Checking for matches before expanding ---\n");
-        for (int j = 0; j < starting_size; j++) {
-            for (int k = 0; k < end_size; k++) {
+        for (long long j = 0; j < starting_size; j++) {
+            for (long long k = 0; k < end_size; k++) {
                 if (compareCubes(starting_graph[j]->cube, end_graph[k]->cube)) {
-                    printf("\n[+] Match found at depths %d and %d\n", 
-                           starting_graph[j]->depth, end_graph[k]->depth);
-                    
-                    // Collect the path from the starting (forward) search
-                    printf("Collecting path from start\n");
-                    char* pathForward = collectPath(starting_graph[j]);
-                    
-                    // Collect the path from end
-                    printf("Collecting path from end\n");
-                    char* pathEnd = collectPath(end_graph[k]);
-                    
-                    // We need to reverse the moves in the end path
-                    // First, create a properly formatted string
-                    size_t pathEndLen = strlen(pathEnd);
-                    char* formattedPathEnd = (char*)malloc(pathEndLen + 1);
-                    if (!formattedPathEnd) {
-                        perror("Error allocating memory for formatted path");
-                        free(pathForward);
-                        free(pathEnd);
+                    char* solution = checkForMatch(starting_graph[j], end_graph[k]);
+                    if (solution) {
                         freeGraph(starting_graph, starting_size);
                         freeGraph(end_graph, end_size);
-                        return NULL;
+                        return solution;
                     }
-                    
-                    // Create reversed moves
-                    reverseTokens(pathEnd, formattedPathEnd);
-                    
-                    // Now invert each move (uppercase to lowercase and vice versa)
-                    char* invertedEnd = reverseMoves(formattedPathEnd, strlen(formattedPathEnd));
-                    free(pathEnd);
-                    free(formattedPathEnd);
-
-                    // Combine the paths
-                    size_t finalLen = strlen(pathForward) + strlen(invertedEnd) + 1;
-                    char* finalSolution = (char*)malloc(finalLen);
-                    if (!finalSolution) {
-                        perror("Error allocating memory for final solution");
-                        free(pathForward);
-                        free(invertedEnd);
-                        freeGraph(starting_graph, starting_size);
-                        freeGraph(end_graph, end_size);
-                        return NULL;
-                    }
-                    
-                    // Concatenate the paths
-                    strcpy(finalSolution, pathForward);
-                    strcat(finalSolution, invertedEnd);
-                    
-                    free(pathForward);
-                    free(invertedEnd);
-                    
+                    // If we reach here, there was an error building the solution
                     freeGraph(starting_graph, starting_size);
                     freeGraph(end_graph, end_size);
-                    return finalSolution;
+                    return NULL;
                 }
             }
         }
@@ -454,59 +470,30 @@ char* meetInTheMiddle(Cube* starting, Cube* end, int max_depth) {
         // Expand forward from the starting cube
         if (starting_depth <= end_depth) {
             printf("\n---------- start (%d) ----------\n", starting_depth);
-            starting_size = expandGraph(&starting_graph, starting_size, &starting_depth, max_depth);
+            long long new_starting_size = expandGraph(&starting_graph, starting_size, &starting_depth, max_depth);
+            if (new_starting_size < 0) {
+                perror("Error expanding starting graph");
+                freeGraph(starting_graph, starting_size);
+                freeGraph(end_graph, end_size);
+                return NULL;
+            }
+            starting_size = new_starting_size;
             
             // Check for matches after expanding the starting graph
             printf("---- Checking for matches after expanding start ---\n");
             for (long long j = 0; j < starting_size; j++) {
                 for (long long k = 0; k < end_size; k++) {
                     if (compareCubes(starting_graph[j]->cube, end_graph[k]->cube)) {
-                        printf("\n[+] Match found at depths %d and %d\n", 
-                               starting_graph[j]->depth, end_graph[k]->depth);
-                        
-                        // Collect path as before
-                        printf("Collecting path from start\n");
-                        char* pathForward = collectPath(starting_graph[j]);
-                        printf("Collecting path from end\n");
-                        char* pathEnd = collectPath(end_graph[k]);
-                        
-                        // Format and reverse the end path
-                        char* formattedPathEnd = (char*)malloc(strlen(pathEnd) + 1);
-                        if (!formattedPathEnd) {
-                            perror("Error allocating memory");
-                            free(pathForward);
-                            free(pathEnd);
+                        char* solution = checkForMatch(starting_graph[j], end_graph[k]);
+                        if (solution) {
                             freeGraph(starting_graph, starting_size);
                             freeGraph(end_graph, end_size);
-                            return NULL;
+                            return solution;
                         }
-                        
-                        reverseTokens(pathEnd, formattedPathEnd);
-                        char* invertedEnd = reverseMoves(formattedPathEnd, strlen(formattedPathEnd));
-                        free(pathEnd);
-                        free(formattedPathEnd);
-
-                        // Combine paths
-                        size_t finalLen = strlen(pathForward) + strlen(invertedEnd) + 1;
-                        char* finalSolution = (char*)malloc(finalLen);
-                        if (!finalSolution) {
-                            perror("Error allocating memory for final solution");
-                            free(pathForward);
-                            free(invertedEnd);
-                            freeGraph(starting_graph, starting_size);
-                            freeGraph(end_graph, end_size);
-                            return NULL;
-                        }
-                        
-                        strcpy(finalSolution, pathForward);
-                        strcat(finalSolution, invertedEnd);
-                        
-                        free(pathForward);
-                        free(invertedEnd);
-                        
+                        // If we reach here, there was an error building the solution
                         freeGraph(starting_graph, starting_size);
                         freeGraph(end_graph, end_size);
-                        return finalSolution;
+                        return NULL;
                     }
                 }
             }
@@ -515,59 +502,30 @@ char* meetInTheMiddle(Cube* starting, Cube* end, int max_depth) {
         // Expand backward from the end cube
         if (end_depth <= starting_depth) {
             printf("\n---------- end (%d) ----------\n", end_depth);
-            end_size = expandGraph(&end_graph, end_size, &end_depth, max_depth);
+            long long new_end_size = expandGraph(&end_graph, end_size, &end_depth, max_depth);
+            if (new_end_size < 0) {
+                perror("Error expanding end graph");
+                freeGraph(starting_graph, starting_size);
+                freeGraph(end_graph, end_size);
+                return NULL;
+            }
+            end_size = new_end_size;
             
             // Check for matches after expanding the end graph
             printf("---- Checking for matches after expanding end ---\n");
-            for (int j = 0; j < starting_size; j++) {
-                for (int k = 0; k < end_size; k++) {
+            for (long long j = 0; j < starting_size; j++) {
+                for (long long k = 0; k < end_size; k++) {
                     if (compareCubes(starting_graph[j]->cube, end_graph[k]->cube)) {
-                        printf("\n[+] Match found at depths %d and %d\n", 
-                               starting_graph[j]->depth, end_graph[k]->depth);
-                        
-                        // Collect path as before
-                        printf("Collecting path from start\n");
-                        char* pathForward = collectPath(starting_graph[j]);
-                        printf("Collecting path from end\n");
-                        char* pathEnd = collectPath(end_graph[k]);
-                        
-                        // Format and reverse the end path
-                        char* formattedPathEnd = (char*)malloc(strlen(pathEnd) + 1);
-                        if (!formattedPathEnd) {
-                            perror("Error allocating memory");
-                            free(pathForward);
-                            free(pathEnd);
+                        char* solution = checkForMatch(starting_graph[j], end_graph[k]);
+                        if (solution) {
                             freeGraph(starting_graph, starting_size);
                             freeGraph(end_graph, end_size);
-                            return NULL;
+                            return solution;
                         }
-                        
-                        reverseTokens(pathEnd, formattedPathEnd);
-                        char* invertedEnd = reverseMoves(formattedPathEnd, strlen(formattedPathEnd));
-                        free(pathEnd);
-                        free(formattedPathEnd);
-
-                        // Combine paths
-                        size_t finalLen = strlen(pathForward) + strlen(invertedEnd) + 1;
-                        char* finalSolution = (char*)malloc(finalLen);
-                        if (!finalSolution) {
-                            perror("Error allocating memory for final solution");
-                            free(pathForward);
-                            free(invertedEnd);
-                            freeGraph(starting_graph, starting_size);
-                            freeGraph(end_graph, end_size);
-                            return NULL;
-                        }
-                        
-                        strcpy(finalSolution, pathForward);
-                        strcat(finalSolution, invertedEnd);
-                        
-                        free(pathForward);
-                        free(invertedEnd);
-                        
+                        // If we reach here, there was an error building the solution
                         freeGraph(starting_graph, starting_size);
                         freeGraph(end_graph, end_size);
-                        return finalSolution;
+                        return NULL;
                     }
                 }
             }
