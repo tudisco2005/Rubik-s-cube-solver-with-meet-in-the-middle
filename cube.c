@@ -1,6 +1,5 @@
 #include "cube.h"
 #include "utils.h"
-#include "graphic.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

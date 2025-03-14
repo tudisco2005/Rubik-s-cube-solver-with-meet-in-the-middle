@@ -1,6 +1,5 @@
 #include "solver.h"
 #include "cube.h"
-#include "graphic.h"
 #include "utils.h"
 
 #include <stdlib.h>

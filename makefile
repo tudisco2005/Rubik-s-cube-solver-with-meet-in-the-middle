@@ -2,8 +2,7 @@
 
 # Compiler settings
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99 -g -lc
-LDFLAGS = -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+CFLAGS = -Wall -Wextra -std=c99 -g
 
 # Directories
 SRC_DIR = .
@@ -42,8 +41,7 @@ run: all
 	$(EXEC)
 
 # Additional dependencies
-$(OBJ_DIR)/main.o: $(SRC_DIR)/main.c $(SRC_DIR)/cube.h $(SRC_DIR)/graphic.h
+$(OBJ_DIR)/main.o: $(SRC_DIR)/main.c $(SRC_DIR)/cube.h
 $(OBJ_DIR)/cube.o: $(SRC_DIR)/cube.c $(SRC_DIR)/cube.h $(SRC_DIR)/utils.h
-$(OBJ_DIR)/graphic.o: $(SRC_DIR)/graphic.c $(SRC_DIR)/graphic.h $(SRC_DIR)/cube.h
 
 .PHONY: all directories clean run

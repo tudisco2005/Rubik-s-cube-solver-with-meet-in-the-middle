@@ -1,8 +1,6 @@
 #ifndef CUBE_H
 #define CUBE_H
 
-#include "raylib.h"
-
 // table
 // depth	Number of possible positions
 // 0	    1

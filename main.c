@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "cube.h"
-#include "graphic.h"
 #include "solver.h"
 
 int main() {
@@ -11,15 +10,11 @@ int main() {
     // char scramble_config[] = "L R u F B R"; // 6 moves
     // char scramble_config[] = "l r U f b r"; // 14 moves - 6 moves
     // char scramble_config[] = "R L F u D F2 R L"; // 15 moves - 8 moves
-    char scramble_config[] = "L R F B U D l r f b u d"; // 15 moves
+    char scramble_config[] = "L R F B U D l r f b u d"; // 16 moves
     // char scramble_config[] = "R L U2 F u D F2 R2 B2 L U2 f b U R2 D F2 U R2 U"; // 20 moves
 
-    // drawCube(cube);
-    // printCube(cube);
-    
     // Scramble the cube
     scrambleCube(cube, scramble_config);
-    // drawCube(cube);
     printCube(cube);
 
     // Solve the cube
@@ -32,7 +27,7 @@ int main() {
     scrambleCube(cube, solution);
     printCube(cube);
 
-    if(solution) free(solution);
+    free(solution);
     freeCube(cube);
     freeCube(end);
     return 0;
