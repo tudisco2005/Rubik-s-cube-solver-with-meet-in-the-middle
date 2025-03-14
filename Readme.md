@@ -2,6 +2,8 @@
 
 A C implementation of a Rubik's cube solver using a bidirectional search algorithm ("meet in the middle"). This solver finds a sequence of moves to solve a scrambled 3x3 Rubik's cube.
 
+
+
 ## Features
 
 - 3x3 Rubik's cube representation with standard color scheme
